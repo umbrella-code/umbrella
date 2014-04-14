@@ -2,6 +2,8 @@
 
 namespace Umbrella\Foundation;
 
+use Symfony\
+
 class Application
 {
     /**
@@ -95,15 +97,15 @@ class Application
     }
 
     /**
-     * Runs the application
+     * Loads the controller based one the URL
      *
      * @return void
      */
-    public function run()
+    public function loadController()
     {
         $this->splitUrl();
 
-        $controllerPath = $this->paths['src'] . '\Controllers\\' . strtolower($this->controller) . '.php';
+        $controllerPath = $this->paths['src'] . '\Controllers\\' . strtolower($this->controller) . 'Controller.php';
         if(file_exists($controllerPath))
         {
             require($controllerPath);
@@ -137,5 +139,15 @@ class Application
         {
             echo 'file does not exist';
         }
+    }
+
+    /**
+     * Starts the application
+     *
+     * @return void
+     */
+    public function start()
+    {
+        $this->loadController();
     }
 }
