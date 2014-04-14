@@ -14,7 +14,7 @@
         "twig/twig": "1.*"
     },
     "autoload": {
-        "psr-0": { "Umbrella": "src/" }
+        "psr-0": { "Umbrella\\": "src/" }
     },
     "minimum-stability": "dev"
 }
