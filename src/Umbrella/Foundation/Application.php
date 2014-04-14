@@ -107,7 +107,9 @@ class Application
         if(file_exists($controllerPath))
         {
             require($controllerPath);
-            $this->controller = new $this->controller();
+
+            $controllerName = $this->controller . 'Controller';
+            $this->controller = new $controllerName();
 
             if(method_exists($this->controller, $this->action))
             {
@@ -131,6 +133,7 @@ class Application
             else
             {
                 //throw new Exception('Controller ' . $this->controller . ' does not have any method named ' . $this->action . '.');
+                echo 'no method found';
             }
         }
         else
