@@ -2,8 +2,6 @@
 
 namespace Umbrella\Foundation;
 
-use Symfony\
-
 class Application
 {
     /**
