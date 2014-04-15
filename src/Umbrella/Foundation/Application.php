@@ -2,6 +2,8 @@
 
 namespace Umbrella\Foundation;
 
+use Symfony\Component\Yaml\Parser;
+
 class Application
 {
     /**
@@ -40,12 +42,20 @@ class Application
     private $routes = array();
 
     /**
+     * Yaml Parser
+     *
+     * @var \Symfony\Component\Yaml\Parser
+     */
+    private $parser = null;
+
+    /**
      * Construct an instance of the Application
      *
      * @return \Umbrella\Foundation\Application
      */
     public function __construct()
     {
+        $this->parser = new Parser();
     }
 
     /**
@@ -65,11 +75,13 @@ class Application
     /**
      * Binds the routes to the app
      *
-     * @param  array $routes
+     * @param  file $routes
      * @return void
      */
-    public function bindRoutes(array $routes)
+    public function bindRoutes($routes)
     {
+        $routes = $this->parser->parse($routes);
+
         $this->routes = $routes;
     }
 
@@ -106,7 +118,7 @@ class Application
     {
         foreach($this->routes as $key => $val)
         {
-            if($val['path'] === $path || $val['name'] === $name)
+            if($val['path'] === $path || $key === $name)
             {
                 return $this->routes[$key];
             }
