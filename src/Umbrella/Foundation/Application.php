@@ -7,9 +7,16 @@ class Application
     /**
      * Controller that is called
      *
-     * @var string
+     * @var Object
      */
     private $controller = null;
+
+    /**
+     * Name of the called controller
+     *
+     * @var string
+     */
+    private $controller_name = "";
 
     /**
      * Method called within the controller
@@ -19,27 +26,6 @@ class Application
     private $action = null;
 
     /**
-     * First parameter passed to the function (if exists)
-     *
-     * @var string
-     */
-    private $param1 = null;
-
-    /**
-     * Second parameter passed to the function (if exists)
-     *
-     * @var string
-     */
-    private $param2 = null;
-
-    /**
-     * Third parameter passed to the function (if exists)
-     *
-     * @var string
-     */
-    private $param3 = null;
-
-    /**
      * Paths defined in the paths file
      *
      * @var array
@@ -47,7 +33,16 @@ class Application
     private $paths = array();
 
     /**
+     * All application routes
+     *
+     * @var array
+     */
+    private $routes = array();
+
+    /**
      * Construct an instance of the Application
+     *
+     * @return \Umbrella\Foundation\Application
      */
     public function __construct()
     {
@@ -68,87 +63,149 @@ class Application
     }
 
     /**
-     * Gets the URL and splits it into usable parts
+     * Binds the routes to the app
+     *
+     * @param  array $routes
+     * @return void
+     */
+    public function bindRoutes(array $routes)
+    {
+        $this->routes = $routes;
+    }
+
+    /**
+     * Parse the URL
      *
      * @return string
      */
-    public function splitUrl()
+    public function parseUri()
     {
-        $url = (isset($_GET['url']) ? $_GET['url'] : null);
+        $uri = (isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : null);
 
-        if(isset($url))
+        if(isset($uri))
         {
-            $url = rtrim($url, '/');
-            $url = filter_var($url, FILTER_SANITIZE_URL);
-            $url = explode('/', $url);
+            $uri = '/' . ltrim(trim($uri), '/');
+            $uri = filter_var($uri, FILTER_SANITIZE_URL);
 
-            $this->controller   = (isset($url[0]) ? $url[0] : null);
-            $this->action       = (isset($url[1]) ? $url[1] : null);
-            $this->param1       = (isset($url[2]) ? $url[2] : null);
-            $this->param2       = (isset($url[3]) ? $url[3] : null);
-            $this->param3       = (isset($url[4]) ? $url[4] : null);
+            return $uri;
         }
         else
         {
-            //throw new Exception("The URL was not found. Please check your sent URL.");
+            echo 'Error parsing URI.';
         }
     }
 
     /**
-     * Loads the controller based one the URL
+     * Search the application routes
+     *
+     * @param  string $path
+     * @param  string $name
+     * @return mixed
+     */
+    public function getRoute($path = "", $name = "")
+    {
+        foreach($this->routes as $key => $val)
+        {
+            if($val['path'] === $path || $val['name'] === $name)
+            {
+                return $this->routes[$key];
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Gets the path to the routes controller
+     *
+     * @param  string $controller
+     * @return mixed
+     */
+    public function getControllerPath($controller)
+    {
+        $fullPath = $this->paths['src'] . '/Controllers/' . $controller;
+
+        if(file_exists($fullPath))
+        {
+            return $fullPath; 
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    /**
+     * Initializes a new instance of a controller
+     *
+     * @param  string $controller_name
+     * @return Object
+     */
+    public function initController($controller)
+    {
+        return new $controller();
+    }
+
+    /**
+     * Runs a given controller
+     *
+     * @param  Object $controller
+     * @param  string $action
+     * @return void
+     */
+    public function runController($controller = null, $action = null)
+    {
+        if($action != null && method_exists($controller, $action))
+        {
+            $controller->{$action}();
+        }
+        else
+        {
+            $controller;
+        }
+    }
+
+    /**
+     * Loads the route based one the URL
      *
      * @return void
      */
-    public function loadController()
+    public function loadRoute()
     {
-        $this->splitUrl();
+        $uri = $this->parseUri();
+        $route = $this->getRoute($uri);
 
-        $controllerPath = $this->paths['src'] . '\Controllers\\' . strtolower($this->controller) . 'Controller.php';
-        if(file_exists($controllerPath))
+        if($route)
         {
-            require($controllerPath);
+            $this->controller_name  = $route['controller'];
+            $this->action           = $route['action'];
 
-            $controllerName = $this->controller . 'Controller';
-            $this->controller = new $controllerName();
+            $controllerPath = $this->getControllerPath($this->controller_name . '.php');
 
-            if(method_exists($this->controller, $this->action))
+            if($controllerPath)
             {
-                if(isset($this->param3))
-                {
-                    $this->controller->{$this->action}($this->param1, $this->param2, $this->param3);
-                }
-                else if(isset($this->param2))
-                {
-                    $this->controller->{$this->action}($this->param1, $this->param2);
-                }
-                else if(isset($this->param1))
-                {
-                    $this->controller->{$this->action}($this->param1);
-                }
-                else
-                {
-                    $this->controller->{$this->action}();
-                }
+                require $controllerPath;
+                
+                $this->controller = $this->initController($this->controller_name);
+                $this->runController($this->controller, $this->action);
             }
             else
             {
-                //throw new Exception('Controller ' . $this->controller . ' does not have any method named ' . $this->action . '.');
-                echo 'no method found';
+                echo '404 File Not Found.';
             }
         }
         else
         {
-            echo 'file does not exist';
+            echo 'No route found.';
         }
     }
 
     /**
-     * Starts the application
+     * Runs the application
      *
      * @return void
      */
-    public function start()
+    public function run()
     {
-        $this->loadController();
+        $this->loadRoute();
     }
 }
