@@ -80,7 +80,7 @@ class Application
      */
     public function bindRoutes($routes)
     {
-        $routes = $this->parser->parse($routes);
+        $routes = $this->parser->parse(file_get_contents($routes));
 
         $this->routes = $routes;
     }
