@@ -103,7 +103,7 @@ class Application
         }
         else
         {
-            echo 'Error parsing URI.';
+            throw new \Exception("Error parsing URI please check your URI.", 1);   
         }
     }
 
@@ -202,12 +202,12 @@ class Application
             }
             else
             {
-                echo '404 File Not Found.';
+                throw new \Exception("404 controller not found.", 1);
             }
         }
         else
         {
-            echo 'No route found.';
+            throw new \Exception("No route was found that matched the current URI.", 1);
         }
     }
 

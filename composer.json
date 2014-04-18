@@ -12,7 +12,8 @@
     "require": {
         "php": ">=5.3.3",
         "twig/twig": "1.*",
-        "symfony/yaml": ">=2.3.0"
+        "symfony/yaml": ">=2.3.0",
+        "filp/whoops": "1.*"
     },
     "autoload": {
         "psr-0": { "Umbrella\\": "src/" }
