@@ -3,30 +3,10 @@
 namespace Umbrella\Foundation;
 
 use Symfony\Component\Yaml\Parser;
+use Umbrella\Routing\RouteCollection;
 
 class Application
 {
-    /**
-     * Controller that is called
-     *
-     * @var Object
-     */
-    private $controller = null;
-
-    /**
-     * Name of the called controller
-     *
-     * @var string
-     */
-    private $controller_name = "";
-
-    /**
-     * Method called within the controller
-     *
-     * @var string
-     */
-    private $action = null;
-
     /**
      * Paths defined in the paths file
      *
@@ -35,11 +15,11 @@ class Application
     private $paths = array();
 
     /**
-     * All application routes
+     * RouteCollection from app
      *
-     * @var array
+     * @var \Umbrella\Routing\RouteCollection
      */
-    private $routes = array();
+    private $routeCollection = array();
 
     /**
      * Yaml Parser
@@ -51,11 +31,15 @@ class Application
     /**
      * Construct an instance of the Application
      *
-     * @return \Umbrella\Foundation\Application
+     * @param  array $paths
+     * @return void
      */
-    public function __construct()
+    public function __construct($paths)
     {
         $this->parser = new Parser();
+        $this->paths = $this->bindPaths($paths);
+
+        $this->routeCollection = $this->bindRouteCollection();
     }
 
     /**
@@ -66,23 +50,24 @@ class Application
      */
     public function bindPaths(array $paths)
     {
-        foreach($paths as $key => $value)
+        foreach($paths as $key => $val)
         {
-            $this->paths[$key] = realpath($value);
+            $paths[$key] = realpath($val);
         }
+
+        return $paths;
     }
 
     /**
-     * Binds the routes to the app
+     * Bind RouteCollection to app
      *
-     * @param  file $routes
-     * @return void
+     * @return \Umbrella\Routing\RouteCollection $routeCollection
      */
-    public function bindRoutes($routes)
+    public function bindRouteCollection()
     {
-        $routes = $this->parser->parse(file_get_contents($routes));
+        $routeCollection = new RouteCollection($this->paths['app'].'/routes.yml');
 
-        $this->routes = $routes;
+        return $routeCollection;
     }
 
     /**
@@ -108,116 +93,12 @@ class Application
     }
 
     /**
-     * Search the application routes
-     *
-     * @param  string $path
-     * @param  string $name
-     * @return mixed
-     */
-    public function getRoute($path = "", $name = "")
-    {
-        foreach($this->routes as $key => $val)
-        {
-            if($val['path'] === $path || $key === $name)
-            {
-                return $this->routes[$key];
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Gets the path to the routes controller
-     *
-     * @param  string $controller
-     * @return mixed
-     */
-    public function getControllerPath($controller)
-    {
-        $fullPath = $this->paths['src'] . '/Controllers/' . $controller;
-
-        if(file_exists($fullPath))
-        {
-            return $fullPath; 
-        }
-        else
-        {
-            return false;
-        }
-    }
-
-    /**
-     * Initializes a new instance of a controller
-     *
-     * @param  string $controller_name
-     * @return Object
-     */
-    public function initController($controller)
-    {
-        return new $controller();
-    }
-
-    /**
-     * Runs a given controller
-     *
-     * @param  Object $controller
-     * @param  string $action
-     * @return void
-     */
-    public function runController($controller = null, $action = null)
-    {
-        if($action != null && method_exists($controller, $action))
-        {
-            $controller->{$action}();
-        }
-        else
-        {
-            $controller;
-        }
-    }
-
-    /**
-     * Loads the route based one the URL
-     *
-     * @return void
-     */
-    public function loadRoute()
-    {
-        $uri = $this->parseUri();
-        $route = $this->getRoute($uri);
-
-        if($route)
-        {
-            $this->controller_name  = $route['controller'];
-            $this->action           = $route['action'];
-
-            $controllerPath = $this->getControllerPath($this->controller_name . '.php');
-
-            if($controllerPath)
-            {
-                require $controllerPath;
-                
-                $this->controller = $this->initController($this->controller_name);
-                $this->runController($this->controller, $this->action);
-            }
-            else
-            {
-                throw new \Exception("404 controller not found.", 1);
-            }
-        }
-        else
-        {
-            throw new \Exception("No route was found that matched the current URI.", 1);
-        }
-    }
-
-    /**
      * Runs the application
      *
      * @return void
      */
     public function run()
     {
-        $this->loadRoute();
+        $this->routeCollection->loadRoute($this->parseUri());
     }
 }
