@@ -99,12 +99,21 @@ class RouteCollection
     /**
      * Gets the path to the routes controller
      *
-     * @param  string $controller
+     * @param  \Umbrella\Routing\Route $route
      * @return mixed
      */
-    public function getControllerPath($controller)
+    public function getControllerPath($route)
     {
-        $fullPath = $this->paths['src'] . '/Controllers/' . $controller;
+        $startDir = $this->paths['src'] . '/Controllers/';
+
+        if($route->getControllerParents() != null)
+        {
+            $fullPath = $startDir . $route->getControllerParents() . '/' . $route->getController();
+        }
+        else
+        {
+            $fullPath = $startDir . $route->getController();
+        }
 
         if(file_exists($fullPath))
         {
@@ -119,6 +128,8 @@ class RouteCollection
     /**
      * Initializes a new instance of a controller
      *
+     * @TODO - add params to initialization if needed
+     *
      * @param  string $controller_name
      * @return Object
      */
@@ -129,6 +140,8 @@ class RouteCollection
 
     /**
      * Runs a given controller
+     *
+     * @TODO - add params to action if needed
      *
      * @param  Object $controller
      * @param  string $action
@@ -158,7 +171,7 @@ class RouteCollection
 
         if($route)
         {
-            $controllerPath = $this->getControllerPath($route->getController());
+            $controllerPath = $this->getControllerPath($route);
 
             if($controllerPath)
             {

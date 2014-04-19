@@ -40,6 +40,13 @@ class Route
     private $controller_name = "";
 
     /**
+     * Parent directories of controller
+     *
+     * @var string
+     */
+    private $controller_parents = "";
+
+    /**
      * Method called within the controller
      *
      * @var string
@@ -70,9 +77,28 @@ class Route
     {
         $partsArray = explode('@', $controllerString);
 
-        $this->controller = $partsArray[0] . '.php';
-        $this->controller_name = $partsArray[0];
-        $this->action = $partsArray[1];
+        if(count($partsArray) > 2)
+        {
+            throw new \Exception("Error parsing controller string, too many @'s found. Only use one to destinguish the controller method.", 1);
+        }
+        else
+        {
+            if(strpos($partsArray[0], ':'))
+            {
+                $parts = explode(':', $partsArray[0]);
+
+                $this->controller_name = array_pop($parts);
+                $this->controller = $this->controller_name . '.php';
+                $this->controller_parents = implode('/', $parts);
+            }
+            else
+            {
+                $this->controller_name = $partsArray[0];
+                $this->controller = $this->controller_name . '.php';
+            }
+            
+            $this->action = $partsArray[1];
+        }
     }
 
     /**
@@ -165,6 +191,29 @@ class Route
         $this->controller_name = $controllerName;
 
         return $this;
+    }
+
+    /**
+     * Set conroller_parents
+     *
+     * @param  string $parents
+     * @return \Umbrella\Routing\Route
+     */
+    public function setControllerParents($parents)
+    {
+        $this->controller_parents = $parents;
+
+        return $this;
+    }
+
+    /**
+     * Get controller_parents
+     *
+     * @return string
+     */
+    public function getControllerParents()
+    {
+        return $this->controller_parents;
     }
 
     /**
