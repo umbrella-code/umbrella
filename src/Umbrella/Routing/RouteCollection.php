@@ -22,15 +22,23 @@ class RouteCollection
     private $parser;
 
     /**
+     * Paths of the application
+     *
+     * @var array
+     */
+    private $paths = array();
+
+    /**
      * Construct the RouteCollection
      *
      * @param  file $routes
      * @return \Umbrella\Routing\RouteCollection
      */
-    public function __construct($routes)
+    public function __construct($routes, $paths)
     {
         $this->parser = new Parser();
 
+        $this->paths = $paths;
         $this->routes = $this->buildRoutes($this->parseRoutes($routes));
     }
 
@@ -73,15 +81,18 @@ class RouteCollection
      * @param  string $name
      * @return mixed
      */
-    public function getRoute($path = "", $name = "") // fix this, not working because $this->routes is an array of objects
+    public function getRoute($path = "", $name = "")
     {
-        foreach($this->routes as $key => $val)
-        {
-            if($val->path === $path || $val->name === $name)
+        for ($i = 0; $i < count($this->routes); $i++)
+        { 
+            $checkRoute = $this->routes[$i];
+
+            if($checkRoute->getName() === $name || $checkRoute->getPath() === $path)
             {
-                return $routes[$key];
+                return $checkRoute;
             }
         }
+        
         return false;
     }
 
@@ -147,17 +158,14 @@ class RouteCollection
 
         if($route)
         {
-            $this->controller_name  = $route['controller'];
-            $this->action           = $route['action'];
-
-            $controllerPath = $this->getControllerPath($this->controller_name . '.php');
+            $controllerPath = $this->getControllerPath($route->getController());
 
             if($controllerPath)
             {
                 require $controllerPath;
                 
-                $this->controller = $this->initController($this->controller_name);
-                $this->runController($this->controller, $this->action);
+                $controller = $this->initController($route->getControllerName());
+                $this->runController($controller, $route->getAction());
             }
             else
             {

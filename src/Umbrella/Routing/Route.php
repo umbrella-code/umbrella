@@ -56,7 +56,137 @@ class Route
     {
         $this->name = $route['name'];
         $this->path = $route['path'];
-        $this->controller = $route['controller'];
-        $this->action = $route['action'];
+
+        $this->parseControllerString($route['controller']);
+    }
+
+    /**
+     * Gets parts of route controller string
+     *
+     * @param  string $controllerString
+     * @return void
+     */
+    public function parseControllerString($controllerString)
+    {
+        $partsArray = explode('@', $controllerString);
+
+        $this->controller = $partsArray[0] . '.php';
+        $this->controller_name = $partsArray[0];
+        $this->action = $partsArray[1];
+    }
+
+    /**
+     * Get name
+     *
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
+
+    /**
+     * Set name
+     *
+     * @param  string $name
+     * @return \Umbrella\Routing\Route
+     */
+    public function setName($name)
+    {
+        $this->name = $name;
+
+        return $this;
+    }
+
+    /**
+     * Get path
+     *
+     * @return string
+     */
+    public function getPath()
+    {
+        return $this->path;
+    }
+
+    /**
+     * Set path
+     *
+     * @param  string $path
+     * @return \Umbrella\Routing\Route
+     */
+    public function setPath($path)
+    {
+        $this->path = $path;
+
+        return $this;
+    }
+
+    /**
+     * Get controller
+     *
+     * @return string
+     */
+    public function getController()
+    {
+        return $this->controller;
+    }
+
+    /**
+     * Set controller
+     *
+     * @param  string $controller
+     * @return \Umbrella\Routing\Route
+     */
+    public function setController($controller)
+    {
+        $this->controller = $controller;
+
+        return $this;
+    }
+
+    /**
+     * Get controller_name (no .php)
+     *
+     * @return string
+     */
+    public function getControllerName()
+    {
+        return $this->controller_name;
+    }
+
+    /**
+     * Set controller_name
+     *
+     * @param  string $controllerName
+     * @return \Umbrella\Routing\Route
+     */
+    public function setControllerName($controllerName)
+    {
+        $this->controller_name = $controllerName;
+
+        return $this;
+    }
+
+    /**
+     * Get action
+     *
+     * @return string
+     */
+    public function getAction()
+    {
+        return $this->action;
+    }
+
+    /**
+     * Set action
+     *
+     * @param  string $action
+     * @return \Umbrella\Routing\Route
+     */
+    public function setAction($action)
+    {
+        $this->action = $action;
+
+        return $this;
     }
 }

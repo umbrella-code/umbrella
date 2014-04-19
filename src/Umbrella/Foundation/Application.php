@@ -65,7 +65,7 @@ class Application
      */
     public function bindRouteCollection()
     {
-        $routeCollection = new RouteCollection($this->paths['app'].'/routes.yml');
+        $routeCollection = new RouteCollection($this->paths['app'].'/routes.yml', $this->paths);
 
         return $routeCollection;
     }
