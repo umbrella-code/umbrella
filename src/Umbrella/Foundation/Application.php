@@ -1,5 +1,14 @@
 <?php
 
+//---------------------------------------------------------------------------
+// Umbrella Application 
+//---------------------------------------------------------------------------
+//
+// The Application class is the main object for the Umbrella Framework. It
+// configures and runs the entire framework. All requests come here first
+// and the Application delegates where they need to go.
+//
+
 namespace Umbrella\Foundation;
 
 use Symfony\Component\Yaml\Parser;

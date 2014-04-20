@@ -1,5 +1,15 @@
 <?php
 
+//---------------------------------------------------------------------------
+// Route Collection
+//---------------------------------------------------------------------------
+//
+// This class is the manager for all of the routes. It is in charge of
+// creating route objects and running the route that is requested by
+// the user.
+// 
+
+
 namespace Umbrella\Routing;
 
 use Symfony\Component\Yaml\Parser;
@@ -106,7 +116,7 @@ class RouteCollection
     {
         $startDir = $this->paths['src'] . '/Controllers/';
 
-        if($route->getControllerParents() != null)
+        if($route->getControllerPath() != null)
         {
             $fullPath = $startDir . $route->getControllerParents() . '/' . $route->getController();
         }

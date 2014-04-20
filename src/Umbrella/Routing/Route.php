@@ -1,5 +1,14 @@
 <?php
 
+//---------------------------------------------------------------------------
+// Route
+//---------------------------------------------------------------------------
+//
+// The is the object for which all route objects are created. The information
+// in the routes.yml file is sent here by the RouteCollection and saved as a
+// a new Route.
+//
+
 namespace Umbrella\Routing;
 
 class Route
@@ -44,7 +53,7 @@ class Route
      *
      * @var string
      */
-    private $controller_parents = "";
+    private $controller_path = "";
 
     /**
      * Method called within the controller
@@ -89,7 +98,7 @@ class Route
 
                 $this->controller_name = array_pop($parts);
                 $this->controller = $this->controller_name . '.php';
-                $this->controller_parents = implode('/', $parts);
+                $this->controller_path = implode('/', $parts);
             }
             else
             {
@@ -194,26 +203,26 @@ class Route
     }
 
     /**
-     * Set conroller_parents
+     * Set conroller_path
      *
-     * @param  string $parents
+     * @param  string $controllerPath
      * @return \Umbrella\Routing\Route
      */
-    public function setControllerParents($parents)
+    public function setControllerPath($controllerPath)
     {
-        $this->controller_parents = $parents;
+        $this->controller_path = $controllerPath;
 
         return $this;
     }
 
     /**
-     * Get controller_parents
+     * Get controller_path
      *
      * @return string
      */
-    public function getControllerParents()
+    public function getControllerPath()
     {
-        return $this->controller_parents;
+        return $this->controller_path;
     }
 
     /**
