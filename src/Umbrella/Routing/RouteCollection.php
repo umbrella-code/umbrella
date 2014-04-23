@@ -101,6 +101,22 @@ class RouteCollection
             {
                 return $checkRoute;
             }
+            else if($checkRoute->getRegex() != null)
+            {
+                $regex = $checkRoute->getRegex();
+
+                if(preg_match($regex, $path))
+                {
+                    preg_match_all('/\/(\w+)/', '/'.ltrim($path, $checkRoute->getStaticPath()), $matches, PREG_SET_ORDER);
+                    foreach($matches as $match)
+                    {
+                        $values[] = $match[1];
+                    }
+                    $checkRoute->setValues($values);
+
+                    return $checkRoute;
+                }
+            }
         }
         
         return false;
@@ -112,13 +128,13 @@ class RouteCollection
      * @param  \Umbrella\Routing\Route $route
      * @return mixed
      */
-    public function getControllerPath($route)
+    public function getControllerPath(Route $route)
     {
         $startDir = $this->paths['src'] . '/Controllers/';
 
         if($route->getControllerPath() != null)
         {
-            $fullPath = $startDir . $route->getControllerParents() . '/' . $route->getController();
+            $fullPath = $startDir . $route->getControllerPath() . '/' . $route->getController();
         }
         else
         {
@@ -155,13 +171,21 @@ class RouteCollection
      *
      * @param  Object $controller
      * @param  string $action
+     * @param  array  $values
      * @return void
      */
-    public function runController($controller = null, $action = null)
+    public function runController($controller = null, $action = null, $values = array())
     {
         if($action != null && method_exists($controller, $action))
         {
-            $controller->{$action}();
+            if($values != null)
+            {
+                call_user_func_array(array($controller, $action), $values);
+            }
+            else
+            {
+                $controller->{$action}();
+            }
         }
         else
         {
@@ -188,7 +212,7 @@ class RouteCollection
                 require $controllerPath;
                 
                 $controller = $this->initController($route->getControllerName());
-                $this->runController($controller, $route->getAction());
+                $this->runController($controller, $route->getAction(), $route->getValues());
             }
             else
             {

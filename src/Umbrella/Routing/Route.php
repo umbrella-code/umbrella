@@ -28,11 +28,32 @@ class Route
     private $path = "";
 
     /**
+     * Static portion of the path
+     *
+     * @var string
+     */
+    private $static_path = "";
+
+    /**
+     * Regex of path
+     *
+     * @var string
+     */
+    private $regex = "";
+
+    /**
      * Parameters for the route
      *
      * @var array
      */
     private $params = array();
+
+    /**
+     * Values of the parameters
+     *
+     * @var array
+     */
+    private $values = array();
 
     /**
      * Controller that is called
@@ -71,7 +92,7 @@ class Route
     public function __construct(array $route)
     {
         $this->name = $route['name'];
-        $this->path = $route['path'];
+        $this->path = $this->compilePath($route['path']);
 
         $this->parseControllerString($route['controller']);
     }
@@ -111,6 +132,36 @@ class Route
     }
 
     /**
+     * Compiles route path
+     *
+     * @param string $path
+     */
+    public function compilePath($path)
+    {
+        if(preg_match_all('/\{(\w+)\}/', $path, $matches, PREG_SET_ORDER) == false)
+        {
+            return $path;
+        }
+        else
+        {
+            foreach($matches as $match)
+            {
+                $this->params[] = $match[1];
+            }
+
+            $static = preg_replace('/\{(\w+)\}/i', "", $path);
+            $static = rtrim($static, '/');
+
+            $path = '/' . str_replace('/', '\/', $path) . '/';
+            $regex = preg_replace('/\{(\w+)\}/', '(\w+)', $path);
+
+            $this->static_path = $static;
+            $this->regex = $regex;
+        }
+        
+    }
+
+    /**
      * Get name
      *
      * @return string
@@ -124,7 +175,7 @@ class Route
      * Set name
      *
      * @param  string $name
-     * @return \Umbrella\Routing\Route
+     * @return \Umbrella\Routing\Route $this
      */
     public function setName($name)
     {
@@ -147,11 +198,34 @@ class Route
      * Set path
      *
      * @param  string $path
-     * @return \Umbrella\Routing\Route
+     * @return \Umbrella\Routing\Route $this
      */
     public function setPath($path)
     {
         $this->path = $path;
+
+        return $this;
+    }
+
+    /**
+     * Get static_path
+     *
+     * @return string
+     */
+    public function getStaticPath()
+    {
+        return $this->static_path;
+    }
+
+    /**
+     * Set static_path
+     *
+     * @param  string $staticPath
+     * @return \Umbrella\Routing\Route $this
+     */
+    public function setStaticPath($staticPath)
+    {
+        $this->static_path = $staticPath;
 
         return $this;
     }
@@ -170,7 +244,7 @@ class Route
      * Set controller
      *
      * @param  string $controller
-     * @return \Umbrella\Routing\Route
+     * @return \Umbrella\Routing\Route $this
      */
     public function setController($controller)
     {
@@ -193,7 +267,7 @@ class Route
      * Set controller_name
      *
      * @param  string $controllerName
-     * @return \Umbrella\Routing\Route
+     * @return \Umbrella\Routing\Route $this
      */
     public function setControllerName($controllerName)
     {
@@ -206,7 +280,7 @@ class Route
      * Set conroller_path
      *
      * @param  string $controllerPath
-     * @return \Umbrella\Routing\Route
+     * @return \Umbrella\Routing\Route $this
      */
     public function setControllerPath($controllerPath)
     {
@@ -226,6 +300,75 @@ class Route
     }
 
     /**
+     * Get regex
+     *
+     * @return string
+     */
+    public function getRegex()
+    {
+        return $this->regex;
+    }
+
+    /**
+     * Set regex
+     *
+     * @param  string $regex
+     * @return \Umbrella\Routing\Route $this
+     */
+    public function setRegex($regex)
+    {
+        $this->regex = $regex;
+
+        return $this;
+    }
+
+    /**
+     * Get params
+     *
+     * @return array
+     */
+    public function getParams()
+    {
+        return $this->params;
+    }
+
+    /**
+     * Set params
+     *
+     * @param  array $params
+     * @return \Umbrella\Routing\Route $this
+     */
+    public function setParams(array $params)
+    {
+        $this->params = $params;
+
+        return $this;
+    }
+
+    /**
+     * Get values
+     *
+     * @return array
+     */
+    public function getValues()
+    {
+        return $this->values;
+    }
+
+    /**
+     * Set values
+     *
+     * @param  array $values
+     * @return \Umbrella\Routing\Route $this
+     */
+    public function setValues(array $values)
+    {
+        $this->values = $values;
+
+        return $this;
+    }
+
+    /**
      * Get action
      *
      * @return string
@@ -239,7 +382,7 @@ class Route
      * Set action
      *
      * @param  string $action
-     * @return \Umbrella\Routing\Route
+     * @return \Umbrella\Routing\Route $this
      */
     public function setAction($action)
     {

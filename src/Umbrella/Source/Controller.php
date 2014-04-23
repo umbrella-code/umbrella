@@ -28,6 +28,11 @@ class Controller
         $this->twig = $this->registerTwig();
     }
 
+    /**
+     * Register new Twig_Environment
+     *
+     * @return Twig_Environment $twig
+     */
     public function registerTwig()
     {
         \Twig_Autoloader::register();
@@ -35,7 +40,7 @@ class Controller
         $loader = new \Twig_Loader_Filesystem($_SERVER['DOCUMENT_ROOT'].'/../src/Views');
         
         $twig = new \Twig_Environment($loader, array(
-            'cache' => $_SERVER['DOCUMENT_ROOT'].'/../app/cache/twig',
+            'cache'       => $_SERVER['DOCUMENT_ROOT'].'/../app/cache/twig',
             'auto_reload' => true
         ));
 
@@ -49,8 +54,8 @@ class Controller
      * @param  array  $data
      * @return void
      */
-    public function render($view, array $data)
+    public function render($view, array $data = array())
     {
-        echo $this->twig->render($view, $data);
+         echo $this->twig->render($view, $data);
     }
 }

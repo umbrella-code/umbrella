@@ -1,1 +1,1 @@
-use Whoops! for all exception handling.
+use Whoops! for all exception and error handling.
