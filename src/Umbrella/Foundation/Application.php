@@ -11,6 +11,8 @@
 
 namespace Umbrella\Foundation;
 
+use PDO;
+use Exception;
 use Symfony\Component\Yaml\Parser;
 use Umbrella\Routing\RouteCollection;
 
@@ -38,15 +40,24 @@ class Application
     private $parser = null;
 
     /**
+     * PDO instance representing the database connection
+     *
+     * @var PDO instance
+     */
+    private $pdo;
+
+    /**
      * Construct an instance of the Application
      *
      * @param  array $paths
+     * @param  array $db
      * @return void
      */
-    public function __construct($paths)
+    public function __construct($paths, $db)
     {
         $this->parser = new Parser();
         $this->paths = $this->bindPaths($paths);
+        $this->db = $this->connectDb($db);
 
         $this->routeCollection = $this->bindRouteCollection();
     }
@@ -97,8 +108,33 @@ class Application
         }
         else
         {
-            throw new \Exception("Error parsing URI please check your URI.", 1);   
+            throw new Exception("Error parsing URI please check your URI.", 1);   
         }
+    }
+
+    /**
+     * Create a new database connection
+     *
+     * @param  array $db
+     * @return PDO Instance $pdo
+     */
+    public function connectDb(array $db)
+    {
+        $db   = $db['types'];
+        $dbn  = $db['mysql']['driver'] . ':host=' . $db['mysql']['host'] . ';dbname=' . $db['mysql']['database'];
+        $user = $db['mysql']['username'];
+        $pass = $db['mysql']['password'];
+
+        try
+        {
+            $pdo = new PDO($dbn, $user, $pass);
+        }
+        catch (Exception $e)
+        {
+            echo $e->getMessage();
+        }
+
+        return $pdo;
     }
 
     /**
