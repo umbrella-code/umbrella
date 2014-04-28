@@ -7,7 +7,7 @@
 // This class is the manager for all of the routes. It is in charge of
 // creating route objects and running the route that is requested by
 // the user.
-// 
+//
 
 
 namespace Umbrella\Routing;
@@ -94,7 +94,7 @@ class RouteCollection
     public function getRoute($path = "", $name = "")
     {
         for ($i = 0; $i < count($this->routes); $i++)
-        { 
+        {
             $checkRoute = $this->routes[$i];
 
             if($checkRoute->getName() === $name || $checkRoute->getPath() === $path)
@@ -118,7 +118,7 @@ class RouteCollection
                 }
             }
         }
-        
+
         return false;
     }
 
@@ -143,7 +143,7 @@ class RouteCollection
 
         if(file_exists($fullPath))
         {
-            return $fullPath; 
+            return $fullPath;
         }
         else
         {
@@ -156,11 +156,21 @@ class RouteCollection
      *
      * @TODO - add params to initialization if needed
      *
-     * @param  string $controller_name
+     * @param  string $controller
+     * @param  string $path
      * @return Object
      */
-    public function initController($controller)
+    public function initController($controller, $path)
     {
+        if($path)
+        {
+            $controller = 'Controllers\\' . $path . '\\' . $controller;
+        }
+        else
+        {
+            $controller = 'Controllers\\' . $controller;
+        }
+
         return new $controller();
     }
 
@@ -210,8 +220,8 @@ class RouteCollection
             if($controllerPath)
             {
                 require $controllerPath;
-                
-                $controller = $this->initController($route->getControllerName());
+
+                $controller = $this->initController($route->getControllerName(), $route->getControllerPath());
                 $this->runController($controller, $route->getAction(), $route->getValues());
             }
             else

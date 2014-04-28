@@ -119,14 +119,14 @@ class Route
 
                 $this->controller_name = array_pop($parts);
                 $this->controller = $this->controller_name . '.php';
-                $this->controller_path = implode('/', $parts);
+                $this->controller_path = implode('\\', $parts);
             }
             else
             {
                 $this->controller_name = $partsArray[0];
                 $this->controller = $this->controller_name . '.php';
             }
-            
+
             $this->action = $partsArray[1];
         }
     }
@@ -158,7 +158,7 @@ class Route
             $this->static_path = $static;
             $this->regex = $regex;
         }
-        
+
     }
 
     /**
