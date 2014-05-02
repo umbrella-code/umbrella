@@ -1,7 +1,7 @@
 <?php
 
 //---------------------------------------------------------------------------
-// Umbrella Application 
+// Umbrella Application
 //---------------------------------------------------------------------------
 //
 // The Application class is the main object for the Umbrella Framework. It
@@ -14,6 +14,9 @@ namespace Umbrella\Foundation;
 use PDO;
 use Exception;
 use Symfony\Component\Yaml\Parser;
+use Doctrine\Common\ClassLoader;
+use Doctrine\ORM\Tools\Setup;
+use Doctrine\ORM\EntityManager;
 use Umbrella\Routing\RouteCollection;
 
 class Application
@@ -40,11 +43,18 @@ class Application
     private $parser = null;
 
     /**
-     * PDO instance representing the database connection
+     * Parameters for database connection
      *
-     * @var PDO instance
+     * @var array
      */
-    private $pdo;
+    private $params;
+
+    /**
+     * Base Doctrine EntityManager
+     *
+     * @var \Doctrine\ORM\EntityManager
+     */
+    private $em;
 
     /**
      * Construct an instance of the Application
@@ -53,12 +63,14 @@ class Application
      * @param  array $db
      * @return void
      */
-    public function __construct($paths, $db)
+    public function __construct($paths, $params)
     {
         $this->parser = new Parser();
         $this->paths = $this->bindPaths($paths);
-        $this->db = $this->connectDb($db);
+        $this->params = $this->addDbParams($params);
+        $this->createClassLoaders();
 
+        $this->em = $this->createBaseEm();
         $this->routeCollection = $this->bindRouteCollection();
     }
 
@@ -76,6 +88,54 @@ class Application
         }
 
         return $paths;
+    }
+
+    /**
+     * Create a new database connection
+     *
+     * @param  array $conn
+     * @return array $conn
+     */
+    public function addDbParams(array $params)
+    {
+        $default = $params['default'];
+        $types   = $params['types'];
+
+        if(array_key_exists($default, $types))
+        {
+            $conn = $types[$default];
+        }
+        else
+        {
+            throw new Exception('Database type ' . $default . ' is not a valid type. Please check the value in the database.php file.', 1);
+        }
+
+        return $conn;
+    }
+
+    /**
+     * Creates all necessary Doctrine ClassLoaders
+     *
+     * @return void
+     */
+    public function createClassLoaders()
+    {
+        $projLoader = new ClassLoader('Project', $this->paths['src']);
+        $projLoader->register();
+    }
+
+    /**
+     * Create the base Doctrine EntityManager
+     *
+     * @return \Doctrine\ORM\EntityManager $em;
+     */
+    public function createBaseEm()
+    {
+        $devEnv = true;
+        $config = Setup::createAnnotationMetadataConfiguration(array($this->paths['src']."/Models"), $devEnv);
+        $conn = $this->getParams();
+
+        return $em = EntityManager::create($conn, $config);
     }
 
     /**
@@ -108,33 +168,8 @@ class Application
         }
         else
         {
-            throw new Exception("Error parsing URI please check your URI.", 1);   
+            throw new Exception("Error parsing URI please check your URI.", 1);
         }
-    }
-
-    /**
-     * Create a new database connection
-     *
-     * @param  array $db
-     * @return PDO Instance $pdo
-     */
-    public function connectDb(array $db)
-    {
-        $db   = $db['types'];
-        $dbn  = $db['mysql']['driver'] . ':host=' . $db['mysql']['host'] . ';dbname=' . $db['mysql']['database'];
-        $user = $db['mysql']['username'];
-        $pass = $db['mysql']['password'];
-
-        try
-        {
-            $pdo = new PDO($dbn, $user, $pass);
-        }
-        catch (Exception $e)
-        {
-            echo $e->getMessage();
-        }
-
-        return $pdo;
     }
 
     /**
@@ -145,5 +180,25 @@ class Application
     public function run()
     {
         $this->routeCollection->loadRoute($this->parseUri());
+    }
+
+    /**
+     * Get $conn
+     *
+     * @return array $this->params
+     */
+    public function getParams()
+    {
+        return $this->params;
+    }
+
+    /**
+     * Get em
+     *
+     * @return $this->em
+     */
+    public function getEm()
+    {
+        return $this->em;
     }
 }

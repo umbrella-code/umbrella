@@ -164,11 +164,11 @@ class RouteCollection
     {
         if($path)
         {
-            $controller = 'Controllers\\' . $path . '\\' . $controller;
+            $controller = 'Project\\Controllers\\' . $path . '\\' . $controller;
         }
         else
         {
-            $controller = 'Controllers\\' . $controller;
+            $controller = 'Project\\Controllers\\' . $controller;
         }
 
         return new $controller();

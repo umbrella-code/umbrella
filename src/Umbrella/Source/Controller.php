@@ -14,11 +14,18 @@ namespace Umbrella\Source;
 use Twig_;
 
 class Controller
-{   
+{
     /**
      * Twig instance to render view
      */
     protected $twig;
+
+    /**
+     * Umbrella Application from Bootstrap
+     *
+     * @var \Umbrella\Founation\Application
+     */
+    protected $app;
 
     /**
      * Contruct the controller
@@ -26,6 +33,7 @@ class Controller
     public function __construct()
     {
         $this->twig = $this->registerTwig();
+        $this->app = require $_SERVER['DOCUMENT_ROOT'].'/../app/config/bootstrap.php';
     }
 
     /**
@@ -37,14 +45,24 @@ class Controller
     {
         \Twig_Autoloader::register();
 
-        $loader = new \Twig_Loader_Filesystem($_SERVER['DOCUMENT_ROOT'].'/../src/Views');
-        
+        $loader = new \Twig_Loader_Filesystem($_SERVER['DOCUMENT_ROOT'].'/../src/Project/Views');
+
         $twig = new \Twig_Environment($loader, array(
             'cache'       => $_SERVER['DOCUMENT_ROOT'].'/../app/cache/twig',
             'auto_reload' => true
         ));
 
         return $twig;
+    }
+
+    /**
+     * Get EntityManager from $app
+     *
+     * @return \Umbrella\Foundation\Application:$em
+     */
+    public function getManager()
+    {
+        return $this->app->getEm();
     }
 
     /**
