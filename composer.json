@@ -13,6 +13,7 @@
         "php": ">=5.3.3",
         "twig/twig": "1.*",
         "symfony/yaml": ">=2.3.0",
+        "symfony/validator": ">=2.4.4",
         "filp/whoops": "1.*",
         "doctrine/orm": ">=2.3.5",
         "monolog/monolog": ">=1.9.1"
