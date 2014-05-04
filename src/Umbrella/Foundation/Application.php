@@ -11,13 +11,13 @@
 
 namespace Umbrella\Foundation;
 
-use PDO;
 use Exception;
 use Symfony\Component\Yaml\Parser;
 use Doctrine\Common\ClassLoader;
 use Doctrine\ORM\Tools\Setup;
 use Doctrine\ORM\EntityManager;
 use Umbrella\Routing\RouteCollection;
+use Umbrella\Exception\ExceptionHandler;
 
 class Application
 {
@@ -57,6 +57,13 @@ class Application
     private $em;
 
     /**
+     * All needed Doctrine ClassLoaders
+     *
+     * @var array \Doctrine\Common\ClassLoader
+     */
+    private $loaders;
+
+    /**
      * Construct an instance of the Application
      *
      * @param  array $paths
@@ -66,12 +73,23 @@ class Application
     public function __construct($paths, $params)
     {
         $this->parser = new Parser();
-        $this->paths = $this->bindPaths($paths);
-        $this->params = $this->addDbParams($params);
-        $this->createClassLoaders();
-
-        $this->em = $this->createBaseEm();
+        $this->startHandlingExceptions();
+        $this->paths           = $this->bindPaths($paths);
+        $this->loaders         = $this->createClassLoaders();
         $this->routeCollection = $this->bindRouteCollection();
+        $this->params          = $this->addDbParams($params);
+        $this->em              = $this->createBaseEm();
+    }
+
+    /**
+     * Start handling exceptions
+     *
+     * @return void
+     */
+    public function startHandlingExceptions()
+    {
+        $handler = new ExceptionHandler();
+        $handler->start();
     }
 
     /**
@@ -122,6 +140,8 @@ class Application
     {
         $projLoader = new ClassLoader('Project', $this->paths['src']);
         $projLoader->register();
+
+        return $projLoader;
     }
 
     /**
