@@ -6,9 +6,6 @@ This is the Todo List for the Umbrella Framework.
 ##Database
 
 * ~~Integrate doctrine orm for database connection~~
-* Create custom annotations for various functionalities
-    * @Rule(...) for column constraints
-    * @Law(...)
 
 ##Exception
 
@@ -17,9 +14,15 @@ This is the Todo List for the Umbrella Framework.
 
 ##Console
 
-* Create console that is used by typing `php bella ...`
-* Modify Doctrine command titles to make them more intuitive and readable
+* ~~Create console that is used by typing `php bella ...`~~
+* ~~Modify Doctrine command titles to make them more intuitive and readable~~
+* Finish adding the rest of the doctrine commands if needed
+* Add doctrine database commands ex. create update drop etc.
 * Add ability to create custom commands
+* Create a model:generate command that creates a model with most commonly used boilerplate
+    * `Use` statements
+    * Namespace
+    * Extends model and autogenerate id
 
 ##Routing
 

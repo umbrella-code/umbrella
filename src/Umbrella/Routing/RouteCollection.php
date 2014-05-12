@@ -42,14 +42,16 @@ class RouteCollection
      * Construct the RouteCollection
      *
      * @param  file $routes
+     * @param  string $name
      * @return \Umbrella\Routing\RouteCollection
      */
-    public function __construct($routes, $paths)
+    public function __construct($routes, $paths, $name, $parser)
     {
-        $this->parser = new Parser();
+        $this->parser   = $parser;
+        $this->paths    = $paths;
+        $this->name     = $name;
 
-        $this->paths = $paths;
-        $this->routes = $this->buildRoutes($this->parseRoutes($routes));
+        $this->routes   = $this->buildRoutes($this->parseRoutes($routes));
     }
 
     /**
@@ -130,7 +132,7 @@ class RouteCollection
      */
     public function getControllerPath(Route $route)
     {
-        $startDir = $this->paths['src'] . '/Controllers/';
+        $startDir = $this->paths['src'] . '/Controller/';
 
         if($route->getControllerPath() != null)
         {
@@ -147,14 +149,12 @@ class RouteCollection
         }
         else
         {
-            return false;
+            throw new \Exception("Controller not found at path " . $fullPath);
         }
     }
 
     /**
      * Initializes a new instance of a controller
-     *
-     * @TODO - add params to initialization if needed
      *
      * @param  string $controller
      * @param  string $path
@@ -164,11 +164,11 @@ class RouteCollection
     {
         if($path)
         {
-            $controller = 'Project\\Controllers\\' . $path . '\\' . $controller;
+            $controller = $this->name . '\\Controller\\' . $path . '\\' . $controller;
         }
         else
         {
-            $controller = 'Project\\Controllers\\' . $controller;
+            $controller = $this->name . '\\Controller\\' . $controller;
         }
 
         return new $controller();
@@ -176,8 +176,6 @@ class RouteCollection
 
     /**
      * Runs a given controller
-     *
-     * @TODO - add params to action if needed
      *
      * @param  Object $controller
      * @param  string $action
@@ -224,14 +222,10 @@ class RouteCollection
                 $controller = $this->initController($route->getControllerName(), $route->getControllerPath());
                 $this->runController($controller, $route->getAction(), $route->getValues());
             }
-            else
-            {
-                throw new \Exception("404 controller not found.", 1);
-            }
         }
         else
         {
-            throw new \Exception("No route was found that matched the current URI.", 1);
+            throw new \Exception("No route was found that matched the requested URI.", 1);
         }
     }
 

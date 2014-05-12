@@ -29,7 +29,8 @@ class ExceptionHandler
     {
         $whoops  = new Run();
         $handler = new PrettyPageHandler();
-        $handler->setResourcesPath(__DIR__.'/resources');
+
+        $handler->addResourcePath(__DIR__.'/Resources');
         $handler->setEditor('sublime');
 
         $whoops->pushHandler($handler);

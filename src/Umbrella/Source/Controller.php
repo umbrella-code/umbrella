@@ -12,6 +12,8 @@
 namespace Umbrella\Source;
 
 use Twig_;
+use Symfony\Component\Validator\Validation;
+use Umbrella\Validation\Validator;
 
 class Controller
 {
@@ -28,12 +30,20 @@ class Controller
     protected $app;
 
     /**
+     * Instance of the Symfony Validator
+     *
+     * @var \Symfony\Component\Validator
+     */
+    protected $validator;
+
+    /**
      * Contruct the controller
      */
     public function __construct()
     {
-        $this->twig = $this->registerTwig();
         $this->app = require $_SERVER['DOCUMENT_ROOT'].'/../app/config/bootstrap.php';
+        $this->twig = $this->registerTwig();
+        $this->validator = $this->createValidator();
     }
 
     /**
@@ -45,7 +55,7 @@ class Controller
     {
         \Twig_Autoloader::register();
 
-        $loader = new \Twig_Loader_Filesystem($_SERVER['DOCUMENT_ROOT'].'/../src/Project/Views');
+        $loader = new \Twig_Loader_Filesystem($_SERVER['DOCUMENT_ROOT'].'/../src/' . $this->app->getProjectName() . '/View');
 
         $twig = new \Twig_Environment($loader, array(
             'cache'       => $_SERVER['DOCUMENT_ROOT'].'/../app/cache/twig',
@@ -58,11 +68,34 @@ class Controller
     /**
      * Get EntityManager from $app
      *
-     * @return \Umbrella\Foundation\Application:$em
+     * @return \Umbrella\Foundation\Application->$em
      */
     public function getManager()
     {
         return $this->app->getEm();
+    }
+
+    /**
+     * Creates an instance of the Symfony Validator
+     *
+     * @return \Symfony\Component\Validator $validator
+     */
+    public function createValidator()
+    {
+        $sv = Validation::createValidatorBuilder()->enableAnnotationMapping()->getValidator();
+        $validator = new Validator($sv);
+
+        return $validator;
+    }
+
+    /**
+     * Gets the Symfony Validator
+     *
+     * @return $this->validator
+     */
+    public function getValidator()
+    {
+        return $this->validator;
     }
 
     /**

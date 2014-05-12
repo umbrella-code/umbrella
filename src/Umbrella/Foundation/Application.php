@@ -16,6 +16,9 @@ use Symfony\Component\Yaml\Parser;
 use Doctrine\Common\ClassLoader;
 use Doctrine\ORM\Tools\Setup;
 use Doctrine\ORM\EntityManager;
+use Doctrine\Common\Annotations\AnnotationReader;
+use Doctrine\Common\Annotations\AnnotationRegistry;
+use Doctrine\Common\Annotations\FileCacheReader;
 use Umbrella\Routing\RouteCollection;
 use Umbrella\Exception\ExceptionHandler;
 
@@ -64,21 +67,26 @@ class Application
     private $loaders;
 
     /**
+     * Name of Project
+     *
+     * @var string
+     */
+    private $project_name = "";
+
+    /**
      * Construct an instance of the Application
      *
      * @param  array $paths
      * @param  array $db
      * @return void
      */
-    public function __construct($paths, $params)
+    public function __construct($paths)
     {
         $this->parser = new Parser();
         $this->startHandlingExceptions();
         $this->paths           = $this->bindPaths($paths);
         $this->loaders         = $this->createClassLoaders();
-        $this->routeCollection = $this->bindRouteCollection();
-        $this->params          = $this->addDbParams($params);
-        $this->em              = $this->createBaseEm();
+        $this->configureApplication();
     }
 
     /**
@@ -90,6 +98,24 @@ class Application
     {
         $handler = new ExceptionHandler();
         $handler->start();
+    }
+
+    /**
+     * Configure the Umbrella Application
+     *
+     * @param  array $config
+     * @return void
+     */
+    public function configureApplication()
+    {
+        $config = file_get_contents($this->paths['app'].'/config/config.yml');
+        $config = $this->parser->parse($config);
+
+        $this->project_name     = $config['application']['project_name'];
+        $this->routeCollection  = $this->bindRouteCollection($this->project_name);
+
+        $this->addDbParams($config['database']['default'], $config['database']['types']);
+        $this->createBaseEm($config['application']['environment']);
     }
 
     /**
@@ -114,11 +140,8 @@ class Application
      * @param  array $conn
      * @return array $conn
      */
-    public function addDbParams(array $params)
+    public function addDbParams($default = "", array $types)
     {
-        $default = $params['default'];
-        $types   = $params['types'];
-
         if(array_key_exists($default, $types))
         {
             $conn = $types[$default];
@@ -128,7 +151,7 @@ class Application
             throw new Exception('Database type ' . $default . ' is not a valid type. Please check the value in the database.php file.', 1);
         }
 
-        return $conn;
+        $this->params = $conn;
     }
 
     /**
@@ -138,10 +161,10 @@ class Application
      */
     public function createClassLoaders()
     {
-        $projLoader = new ClassLoader('Project', $this->paths['src']);
-        $projLoader->register();
+        //$projLoader = new ClassLoader('Project', $this->paths['src']);
+        //$projLoader->register();
 
-        return $projLoader;
+        //return $projLoader;
     }
 
     /**
@@ -149,10 +172,25 @@ class Application
      *
      * @return \Doctrine\ORM\EntityManager $em;
      */
-    public function createBaseEm()
+    public function createBaseEm($env)
     {
-        $devEnv = true;
-        $config = Setup::createAnnotationMetadataConfiguration(array($this->paths['src']."/Models"), $devEnv);
+        if($env == 'dev')
+        {
+            $devEnv = true;
+        }
+        else
+        {
+            $devEnv = false;
+        }
+
+        AnnotationRegistry::registerFile($this->paths['root'] . '/vendor/doctrine/orm/lib/Doctrine/ORM/Mapping/Driver/DoctrineAnnotations.php');
+        AnnotationRegistry::registerAutoloadNamespace('Symfony\Component\Validator\Constraints', $this->paths['root'] . '/vendor/symfony/validator');
+
+        $reader = new FileCacheReader(new AnnotationReader(), $this->paths['app'] . '/cache/doctrine/annotations', $debug = true);
+
+        $driverImpl = new \Doctrine\ORM\Mapping\Driver\AnnotationDriver($reader, array($this->paths['src']."/Model"));
+        $config = Setup::createAnnotationMetadataConfiguration(array($this->paths['src']."/Model"), $devEnv);
+        $config->setMetadataDriverImpl($driverImpl);
         $conn = $this->getParams();
 
         return $em = EntityManager::create($conn, $config);
@@ -161,11 +199,12 @@ class Application
     /**
      * Bind RouteCollection to app
      *
+     * @param  string $name
      * @return \Umbrella\Routing\RouteCollection $routeCollection
      */
-    public function bindRouteCollection()
+    public function bindRouteCollection($name = "")
     {
-        $routeCollection = new RouteCollection($this->paths['app'].'/routes.yml', $this->paths);
+        $routeCollection = new RouteCollection($this->paths['app'].'/routes.yml', $this->paths, $name, $this->parser);
 
         return $routeCollection;
     }
@@ -220,5 +259,15 @@ class Application
     public function getEm()
     {
         return $this->em;
+    }
+
+    /**
+     * Get project_name
+     *
+     * @return \Umbrella\Foundation\Application:$project_name
+     */
+    public function getProjectName()
+    {
+        return $this->project_name;
     }
 }
