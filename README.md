@@ -11,17 +11,17 @@ If you would like to use the Umbrella Framework in your app simply add the follo
 "repositories": [
     {
         "type": "vcs",
-        "url":  "https://github.com/umbrella-mvc/framework"
+        "url":  "https://github.com/umbrella-code/framework"
     }
 ],
 "require": {
-    "umbrella-mvc/framework": "dev-master"
+    "umbrella-code/framework": "dev-master"
 },
 ```
 
 ##Warning
 
-This framework is still VERY early in development. Please be warned that there is a lot of security implementations that need to be added and refined.
+This framework is still in development. There are still security implementations that need to be added and refined.
 
 ##License
 
