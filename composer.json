@@ -1,6 +1,6 @@
 {
-    "name": "umbrella-mvc/framework",
-    "license": "Apache License Version 2.0",
+    "name": "umbrella-code/framework",
+    "license": "MIT License",
     "type": "framework",
     "description": "MVC Framework for PHP",
     "authors": [
