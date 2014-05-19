@@ -2,7 +2,7 @@
     "name": "umbrella-code/umbrella",
     "license": "MIT License",
     "type": "library",
-    "keywords": ["framework"],
+    "keywords": ["framework", "umbrella", "mvc"],
     "description": "The Umbrella PHP Framework",
     "authors": [
         {
