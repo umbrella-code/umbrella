@@ -1,21 +1,15 @@
 Umbrella Framework
 =========
 
-The framework behind [Umbrella](https://github.com/umbrella-code/umbrella).
+The [Umbrella](https://github.com/umbrella-code/umbrella) PHP Framework.
 
 ##Installation
 
 If you would like to use the Umbrella Framework in your app simply add the following to your `composer.json` file and run <br /> `composer install`
 
 ```json
-"repositories": [
-    {
-        "type": "vcs",
-        "url":  "https://github.com/umbrella-code/framework"
-    }
-],
 "require": {
-    "umbrella-code/framework": "dev-master"
+    "umbrella-code/framework": "dev-master",
 },
 ```
 
