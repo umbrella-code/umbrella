@@ -1,7 +1,7 @@
 Umbrella Framework
 =========
 
-The [Umbrella](https://github.com/umbrella-code/umbrella) PHP Framework.
+The [Umbrella](https://github.com/umbrella-code/standard-distribution) PHP Framework.
 
 ##Installation
 
