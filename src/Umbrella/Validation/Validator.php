@@ -2,8 +2,6 @@
 
 namespace Umbrella\Validation;
 
-use Symfony\Component\Validator\Validator as SymfonyValidator;
-
 class Validator
 {
     /**
@@ -38,7 +36,7 @@ class Validator
      * @param  \Symfony\Component\Validator $sValidator
      * @return void
      */
-    public function __construct(SymfonyValidator $sValidator)
+    public function __construct($sValidator)
     {
         $this->sValidator = $sValidator;
     }
