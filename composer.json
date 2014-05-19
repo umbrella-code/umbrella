@@ -1,8 +1,9 @@
 {
     "name": "umbrella-code/framework",
     "license": "MIT License",
-    "type": "framework",
-    "description": "MVC Framework for PHP",
+    "type": "library",
+    "keywords": ["framework"],
+    "description": "The Umbrella PHP Framework",
     "authors": [
         {
             "name": "Zach Starnes",

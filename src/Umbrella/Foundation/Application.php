@@ -161,10 +161,6 @@ class Application
      */
     public function createClassLoaders()
     {
-        //$projLoader = new ClassLoader('Project', $this->paths['src']);
-        //$projLoader->register();
-
-        //return $projLoader;
     }
 
     /**
@@ -193,7 +189,7 @@ class Application
         $config->setMetadataDriverImpl($driverImpl);
         $conn = $this->getParams();
 
-        return $em = EntityManager::create($conn, $config);
+        $this->em = EntityManager::create($conn, $config);
     }
 
     /**
