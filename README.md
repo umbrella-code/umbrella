@@ -9,7 +9,7 @@ If you would like to use the Umbrella Framework in your app simply add the follo
 
 ```json
 "require": {
-    "umbrella-code/framework": "dev-master",
+    "umbrella-code/umbrella": "dev-master",
 },
 ```
 
