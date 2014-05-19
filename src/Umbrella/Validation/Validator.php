@@ -19,7 +19,7 @@ class Validator
     private $passed = true;
 
     /**
-     * Instance of the Symfony Validator
+     * Instance of the Symfony LegacyValidator
      */
     private $sValidator;
 
@@ -33,7 +33,7 @@ class Validator
     /**
      * Umbrella Validator Constructor
      *
-     * @param  \Symfony\Component\Validator $sValidator
+     * @param  \Symfony\Component\Validator\LegacyValidator $sValidator
      * @return void
      */
     public function __construct($sValidator)

@@ -32,7 +32,7 @@ class Controller
     /**
      * Instance of the Symfony Validator
      *
-     * @var \Symfony\Component\Validator
+     * @var \Symfony\Component\Validator\LegacyValidator
      */
     protected $validator;
 
