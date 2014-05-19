@@ -19,10 +19,6 @@ This is the Todo List for the Umbrella Framework.
 * Finish adding the rest of the doctrine commands if needed
 * Add doctrine database commands ex. create update drop etc.
 * Add ability to create custom commands
-* Create a model:generate command that creates a model with most commonly used boilerplate
-    * `Use` statements
-    * Namespace
-    * Extends model and autogenerate id
 
 ##Routing
 
